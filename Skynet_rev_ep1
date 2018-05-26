@@ -1,0 +1,173 @@
+import sys
+import math
+#Solution uses Djikstra's algorythm to find optimal path
+# Auto-generated code below aims at helping you parse
+# the standard input according to the problem statement.
+
+# n: the total number of nodes in the level, including the gateways
+# l: the number of links
+# e: the number of exit gateways
+n, l, e = [int(i) for i in input().split()]
+linklist=[]
+ei=[]
+for i in range(l):
+    # n1: N1 and N2 defines a link between these nodes
+    #n1, n2 = [int(j) for j in input().split()]
+    #tuple input of links
+    inp=input()
+    linklist.append((int(inp.split()[0]),int(inp.split()[1])))
+for i in range(e):
+    inp = int(input())# the index of a gateway node
+    ei.append(inp)
+    
+    
+
+class Path:
+    def __init__(self,start,end):
+        self.nodesdict={}
+        for i in range(n):
+            self.nodesdict[i]=l
+        self.minpath=[]
+        self.minpath_len=l
+        self.start=start
+        self.end=end
+    #chek if end in link
+    def endinlink(self,link):
+        if link[0]==self.end or link[1]==self.end:
+            return True
+        else:
+            return False
+            
+    def startinlink(self,link):
+        if link[0]==self.end or link[1]==self.start:
+            return True
+        else:
+            return False
+            
+    def dijkstra(self):
+        #print('dijkstra_start', file=sys.stderr)
+        i=0
+        k=0
+        currentnode=self.start
+        self.nodesdict[currentnode]=0
+        donenodes=[self.end]
+        backtrack=[]
+        print('dijkstart'.format(si), file=sys.stderr)
+        while len(donenodes)<n:#len(donenodes)!=n:
+            #neighbours of corrent node
+            nl=get_neigh(currentnode)
+            print('donenodes '+str(len(donenodes)), file=sys.stderr)
+            for done in donenodes:
+                if done in nl:
+                    nl.remove(done)
+            print('im at '+str(currentnode)+' node, neighbs are'+str(nl), file=sys.stderr)
+            #brush off checked nodes
+            for node in nl:
+                if self.nodesdict[node]>self.nodesdict[currentnode]+1:
+                    self.nodesdict[node]=self.nodesdict[currentnode]+1
+            i+=1
+            if i == n+20:
+                raise ValueError('too long 1st'+str(i))
+            #giving numbers to neighbs
+            donenodes.append(currentnode)
+            if nl == []:
+                for i in range(n):
+                    if i not in donenodes:
+                        currentnode=i
+                        break
+            else:
+                currentnode=nl[0]
+            #new node
+            #break if there is no neighs
+        i=0
+        self.minpath.append(self.end)
+        currentnode=self.end
+        
+        #backtrack of dijkstra
+        while currentnode != self.start:
+            nl=get_neigh(currentnode)
+            #clear backtracked nodes
+            for node in backtrack:
+                if node in nl:
+                    nl.remove(node)
+            print('im at '+str(currentnode)+' node, neighbs are'+str(nl), file=sys.stderr)
+            print('neib weighs are {}'.format(str([self.nodesdict[i] for i in nl])), file=sys.stderr)
+            minw = l
+            newnode = None
+            for node in nl:
+                if self.nodesdict[node]<minw:
+                    minw=self.nodesdict[node]
+                    newnode=node
+            #choose node with minimal weight
+            backtrack.append(currentnode)
+            currentnode=newnode     
+            self.minpath.append(newnode)#construct minpath
+            i+=1
+            if i == n+20:
+                raise ValueError('too long 2st')
+        # last(first) node
+        #self.minpath.append(self.start)
+        self.minpath=self.minpath[::-1]
+        self.minpath_len=len(self.minpath)
+                
+                
+            
+        
+            
+            
+            
+def linkinput(link):
+    return str(link[0])+' '+str(link[1])
+    
+def islinked(tup1,tup2):
+    res=False
+    for i in tup1:
+        for j in tup2:
+            res+=  i==j
+    return bool(res)
+    
+def get_neigh(node):
+    neighlist=[]
+    for link in linklist:
+        if node == link[0] or node == link[1]:
+            neighlist.append(link[0]*(node!=link[0])+link[1]*(node!=link[1]))
+    return neighlist
+    
+# game loop
+while True:
+    si = int(input())  # The index of the node on which the Skynet agent is positioned this turn
+    print('agent at {}'.format(si), file=sys.stderr)
+
+    exts=[]
+    minlen=l
+    mem= None
+    print(n, file=sys.stderr)
+    for i,exit in enumerate(ei):        
+        exts.append(Path(si,exit))
+        exts[i].dijkstra()
+        print(exts[i].minpath_len,file=sys.stderr)
+        if minlen>exts[i].minpath_len:
+            minlen=exts[i].minpath_len
+            mem=i
+            mph=exts[i].minpath
+
+    if e ==1:
+        ph=Path(si,ei[0])
+        ph.dijkstra()
+        mph=ph.minpath
+    print(mph, file=sys.stderr)
+    # Write an action using print
+    # To debug: print("Debug messages...", file=sys.stderr)
+    #print(get_neigh(2), file=sys.stderr)
+    #print (islinked((4,2),(1,3)))
+    #print(ei, file=sys.stderr)
+    # Example: 0 1 are the indices of the nodes you wish to sever the link between
+    link=(mph[0],mph[1])
+    print('len of linkklist {}'.format(len(linklist)), file=sys.stderr)
+    print('{} {}'.format(link[0],link[1]))
+"""  
+    if link in linklist:
+        linklist.remove(link)
+    else:
+        linklist.remove((link[1],link[0]))
+"""
