@@ -1,0 +1,210 @@
+import sys
+import math
+#important note!
+#works only in leagues that lower than gold.
+Have_boost=True
+T=1800
+speedx=0
+speedy=0
+opspeedx=0
+opspeedy=0
+lastx=0
+lasty=0
+lastopx=0
+lastopy=0
+shield_delay=10
+# Auto-generated code below aims at helping you parse
+# the standard input according to the problem statement.
+def dist(x1,y1,x2,y2):
+    return math.hypot(x1-x2,y1-y2)  
+    
+class Vector:
+    def __init__(self, x=0, y=0):
+        self.x=x
+        self.y=y
+
+    def rotate(self,ang):
+        ang=math.radians(ang)
+        newx=self.x*math.cos(ang)-self.y*math.sin(ang)
+        newy=self.x*math.sin(ang)+self.y*math.cos(ang)
+        self.x=newx
+        self.y=newy
+        
+    def length(self):
+        return math.hypot(self.x,self.y)
+        
+    def getangle(self):
+        return math.atan2(self.y,self.x)
+    def getangle_deg(self):
+        return int(math.degrees(self.getangle()))
+    def setlen(self,newlen):
+        length = self.length()
+        self.x *= newlen/length
+        self.y *= newlen/length
+    def normalize(self):
+        length = self.length()
+        if length != 0:
+            self.x /= length
+            self.y /= length
+    
+    def __getitem__(self, key):
+        if key == 0:
+           return self.x
+        elif key == 1:
+            return self.y
+        else:
+            raise IndexError("Invalid subscript "+str(key)+" to Vec2d")
+
+
+    def __mul__(self, other):
+        if isinstance(other, Vec2d):
+            return self.x*other.x + self.y*other.y
+        else:
+            return Vec2d(self.x*other, self.y*other)
+
+    def __repr__(self):
+        return 'Vector({}, {})'.format(self.x, self.y)
+
+    def __str__(self):
+        return '({}, {})'.format(self.x, self.y)
+
+    def __add__(self, other):
+        return Vector2D(self.x + other.x, self.y + other.y)
+
+    def __iadd__(self, other):
+        self.x += other.x
+        self.y += other.y
+        return self
+
+    def __sub__(self, other):
+        return Vector2D(self.x - other.x, self.y - other.y)
+
+    def __isub__(self, other):
+        self.x -= other.x
+        self.y -= other.y
+        return self
+
+    def __abs__(self):
+        return math.hypot(self.x, self.y)
+
+    def __bool__(self):
+        return self.x != 0 and self.y != 0
+
+    def __neg__(self):
+        return Vector2D(-self.x, -self.y)
+       
+        
+def linearfunk(x):
+    k=(100-40)/(T-600)
+    b=40-k*600
+    return k*x+b
+
+def thrustbydist(dist):
+    if dist<=600:
+        return 40
+    elif dist > 600 and dist<=T:
+        return int(linearfunk(dist))
+    else:
+        return 100
+        
+def get_abs_angle(x,y,xch,ych,ang):
+    dx=xch-x
+    dy=ych-y
+    absang=math.atan2(dy, dx)
+    absang=-int(math.degrees(absang))+ang
+    return norm_angle(absang)
+
+
+def norm_angle(ang):
+    if ang > 180:
+        return ang - 360
+    elif ang < -180:
+        return ang + 360
+    else:
+        return ang
+        
+def incircle(x,y,xc,yc,r):
+    if (x-xc)**2+(y-yc)**2<=r**2:
+        return True
+    else:
+        return False
+        
+#will collide
+def willcolide(x,y,v,ox,oy,ov,L):
+    v.normalize()
+    ov.normalize()
+    #if incircle(x+L*vx,y+L*vy,ox+L*o
+    pass
+
+# game loop
+while True:
+    # next_checkpoint_x: x position of the next check point
+    # next_checkpoint_y: y position of the next check point
+    # next_checkpoint_dist: distance to the next checkpoint
+    # next_checkpoint_angle: angle between your pod orientation and the direction of the next checkpoint
+    x, y, next_checkpoint_x, next_checkpoint_y, next_checkpoint_dist, next_checkpoint_angle = [int(i) for i in input().split()]
+    opponent_x, opponent_y = [int(i) for i in input().split()]
+    
+    # Write an action using print
+    # To debug: print("Debug messages...", file=sys.stderr)
+    myangle=get_abs_angle(x,y,next_checkpoint_x,next_checkpoint_y,next_checkpoint_angle)
+    myangle_cos=math.cos(math.radians(myangle))
+    myangle_sin=math.sin(math.radians(myangle))
+    input_x=next_checkpoint_x
+    input_y=next_checkpoint_y
+    angle_of_ch=90
+    if abs(next_checkpoint_angle)>angle_of_ch:
+        thrust = 0
+    else:
+        thrust = thrustbydist(next_checkpoint_dist)
+    path_ch=Vector(next_checkpoint_x-x,next_checkpoint_y-y)
+    #myspeed approx
+    speed=Vector()
+    speed.x=x-lastx
+    speed.y=y-lasty
+    lastx=x
+    lasty=y 
+    #oppspeed approximation
+    opspeed=Vector()
+    opspeed.x=opponent_x-lastopx
+    opspeed.y=opponent_y-lastopy
+    lastopx=opponent_x
+    lastopy=opponent_y
+
+    if Have_boost and next_checkpoint_dist>5000:
+        if abs(next_checkpoint_angle)<10:
+            thrust="BOOST"
+            Have_boost=False
+            
+            
+    #slam code
+    #shield_delay=10        
+            
+            
+            
+            
+    
+    #overriding the "circles"
+    
+    speed.normalize()
+    if next_checkpoint_dist>500 and next_checkpoint_dist<2000 and not incircle(x+next_checkpoint_dist*speed.x,y+next_checkpoint_dist*speed.y,next_checkpoint_x, next_checkpoint_y,600):
+        print("doing da shit".format(), file=sys.stderr)
+        """
+        if angdif+360>0:
+            na= -120
+        else:
+            na= 120
+            """
+        na=180
+        thrust=100
+        newvect = speed
+        newvect.rotate(na)
+        newvect.setlen(1200)
+        input_x=next_checkpoint_x + int(newvect.x)
+        input_y=next_checkpoint_y + int(newvect.y)
+            
+    # You have to output the target position
+    # followed by the power (0 <= thrust <= 100)
+    # i.e.: "x y thrust"
+    print("ang ch {} ang spd {}".format(path_ch.getangle_deg()+180,speed.getangle_deg()+180), file=sys.stderr)
+    print("{} {} {}".format(input_x,input_y,thrust))
