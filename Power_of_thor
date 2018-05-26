@@ -1,0 +1,48 @@
+import sys
+import math
+#solution uses the iterator for getting next step
+# Auto-generated code below aims at helping you parse
+# the standard input according to the problem statement.
+# ---
+# Hint: You can use the debug stream to print initialTX and initialTY, if Thor seems not follow your orders.
+
+# light_x: the X position of the light of power
+# light_y: the Y position of the light of power
+# initial_tx: Thor's starting X position
+# initial_ty: Thor's starting Y position
+light_x, light_y, initial_tx, initial_ty = [int(i) for i in input().split()]
+#difference for x and y
+x=light_x-initial_tx
+y=light_y-initial_ty
+#We will use only two letters, so let choose em
+if x>0:
+    xl='E'
+else:
+    xl='W'
+if y>0:
+    yl='S'
+else:
+    yl='N'
+#iterator that gives us path by difference
+def iter_for_letters(x,y):
+    #we need  max(x,y) iter because we can go diagonally. abs because of sign of x and y
+    for i in range(max([abs(x),abs(y)])):
+        #first min (x,y) we going diagonally
+        if i<min([abs(x),abs(y)]):
+            yield yl+xl
+        #after going diagonally we check if x>y and going left/right
+        elif abs(x)>abs(y):
+            yield xl
+        #going up/down if none of this
+        else:
+            yield yl
+#init of iterable object
+iterobj=iter_for_letters(x,y)
+# game loop
+while True:
+    remaining_turns = int(input())  # The remaining amount of turns Thor can move. Do not remove this line.
+    # Write an action using print
+    # To debug: print("Debug messages...", file=sys.stderr)
+    # A single line providing the move to be made: N NE E SE S SW W or NW
+    #using __next__ method for iterating
+    print(next(iterobj))
